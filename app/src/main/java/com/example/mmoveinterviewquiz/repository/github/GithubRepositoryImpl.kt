@@ -1,6 +1,8 @@
 package com.example.mmoveinterviewquiz.repository.github
 
 import android.util.Log
+import com.example.mmoveinterviewquiz.data.local.dao.FavoriteDao
+import com.example.mmoveinterviewquiz.data.local.entity.Favorite
 import com.example.mmoveinterviewquiz.data.network.model.GetGistsResponseItem
 import com.example.mmoveinterviewquiz.data.network.service.GithubApiService
 import com.example.mmoveinterviewquiz.repository.BaseRepository
@@ -9,11 +11,11 @@ import com.example.mmoveinterviewquiz.repository.model.RepositoryResult
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
 
-class GithubRepositoryImpl(private val apiService: GithubApiService): BaseRepository() {
+class GithubRepositoryImpl(private val apiService: GithubApiService, private val favoriteDao: FavoriteDao): BaseRepository() {
 
 
     suspend fun fetchGistsAsync(coroutineScope: CoroutineScope): Deferred<RepositoryResult<List<Gist>>> {
-        return executeSuspendCall(coroutineScope) {
+        return executeAsyncCall(coroutineScope) {
             val apiResult = apiService.getGists()
 
             apiResult.map {
@@ -47,15 +49,29 @@ class GithubRepositoryImpl(private val apiService: GithubApiService): BaseReposi
     }
 
 
-    suspend fun updateFavoriteAsync(coroutineScope: CoroutineScope, id: String): Deferred<RepositoryResult<List<String>>> {
-        return executeSuspendCall(coroutineScope) {
-                listOf("1234")
+    suspend fun addFavoriteAsync(coroutineScope: CoroutineScope, gistID: String): Deferred<RepositoryResult<List<String>>> {
+        return executeAsyncCall(coroutineScope) {
+            favoriteDao.insert(favorite = Favorite(gistID))
+            favoriteDao.getAll().map {
+                it.id
+            }
+        }
+    }
+
+    suspend fun deleteFavoriteAsync(coroutineScope: CoroutineScope, gistID: String): Deferred<RepositoryResult<List<String>>> {
+        return executeAsyncCall(coroutineScope) {
+            favoriteDao.delete(favorite = Favorite(gistID))
+            favoriteDao.getAll().map {
+                it.id
+            }
         }
     }
 
     suspend fun fetchFavoritesAsync(coroutineScope: CoroutineScope): Deferred<RepositoryResult<List<String>>> {
-        return executeSuspendCall(coroutineScope) {
-            listOf("1234")
+        return executeAsyncCall(coroutineScope) {
+            favoriteDao.getAll().map {
+                it.id
+            }
         }
     }
 }

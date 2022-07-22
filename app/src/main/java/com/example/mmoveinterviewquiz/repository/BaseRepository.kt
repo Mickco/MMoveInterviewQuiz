@@ -12,7 +12,7 @@ import java.io.IOException
 import java.net.UnknownHostException
 
 abstract class BaseRepository {
-    suspend fun <T> executeSuspendCall(coroutineScope: CoroutineScope, apiCall: suspend () -> T ): Deferred<RepositoryResult<T>> {
+    suspend fun <T> executeAsyncCall(coroutineScope: CoroutineScope, apiCall: suspend () -> T ): Deferred<RepositoryResult<T>> {
         return with(coroutineScope) {
             async(start = CoroutineStart.LAZY) {
                 try {

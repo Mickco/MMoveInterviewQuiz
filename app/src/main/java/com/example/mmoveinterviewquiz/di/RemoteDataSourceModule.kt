@@ -4,7 +4,6 @@ import android.content.Context
 import com.example.mmoveinterviewquiz.BuildConstant
 import com.example.mmoveinterviewquiz.data.network.interceptor.NetworkConnectionInterceptor
 import com.example.mmoveinterviewquiz.data.network.service.GithubApiService
-import com.example.mmoveinterviewquiz.repository.github.GithubRepositoryImpl
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -18,7 +17,7 @@ import javax.inject.Singleton
 
 @InstallIn(SingletonComponent::class)
 @Module
-class NetworkModule {
+class RemoteDataSourceModule {
 
     @Singleton
     @Provides
@@ -50,13 +49,6 @@ class NetworkModule {
         return retrofit.create(GithubApiService::class.java)
     }
 
-    @Provides
-    fun provideGithubRepository(
-        apiService: GithubApiService
-    ): GithubRepositoryImpl {
-        return GithubRepositoryImpl(
-            apiService = apiService
-        )
-    }
+
 
 }

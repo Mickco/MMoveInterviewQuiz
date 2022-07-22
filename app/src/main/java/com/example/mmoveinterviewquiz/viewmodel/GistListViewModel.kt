@@ -38,6 +38,32 @@ class GistListViewModel @Inject constructor(private val repository: GithubReposi
 
 
     fun onClickFavoriteGist(position: Int) {
+        launchLoadingScope {
+            val clickedItem = (_gistListUIModel.value.gistList.getOrNull(position) as? GistListUIItem.Gist) ?: return@launchLoadingScope
+            val res = when (clickedItem.isFavorite) {
+                true -> repository.deleteFavoriteAsync(viewModelScope, clickedItem.id)
+                false -> repository.addFavoriteAsync(viewModelScope, clickedItem.id)
+            }.await()
+
+            when (res) {
+                is RepositoryResult.Success -> {
+                    val newList = _gistListUIModel.value.gistList.mapIndexed { idx, item ->
+                        when (position == idx && item is GistListUIItem.Gist) {
+                            true -> item.copy(
+                                isFavorite = !item.isFavorite
+                            )
+                            false -> item
+                        }
+                    }
+                    _gistListUIModel.value = _gistListUIModel.value.copy(
+                        gistList = newList
+                    )
+                }
+                is RepositoryResult.Fail -> {
+                    onResponseFail(res)
+                }
+            }
+        }
 
     }
 
