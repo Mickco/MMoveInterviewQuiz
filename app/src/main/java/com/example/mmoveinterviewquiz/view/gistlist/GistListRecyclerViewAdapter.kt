@@ -35,6 +35,7 @@ class GistListRecyclerViewAdapter(private val listener: GistItemListener): Recyc
         Log.d("Mickco", "position ${position}")
         val item = uiList.getOrNull(position)
         val context = holder.itemView.context
+
         when {
             holder is GistItemViewHolder && item is GistListUIItem.Gist-> {
                 holder.itemView.setOnClickListener {
@@ -54,6 +55,9 @@ class GistListRecyclerViewAdapter(private val listener: GistItemListener): Recyc
                 }
             }
             holder is UserInfoItemViewHolder && item is GistListUIItem.UserInfo -> {
+                holder.itemView.setOnClickListener {
+                    listener.onClickItem(item.id)
+                }
                 holder.binding.apply {
                     userInfoItemText.text = item.info.getString(context)
                 }
