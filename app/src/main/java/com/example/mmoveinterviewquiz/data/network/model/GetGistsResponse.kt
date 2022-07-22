@@ -1,5 +1,7 @@
 package com.example.mmoveinterviewquiz.data.network.model
 
+import com.google.gson.annotations.SerializedName
+
 
 data class GetGistsResponseItem(
     val comments: Int,
@@ -18,6 +20,7 @@ data class GetGistsResponseItem(
     val truncated: Boolean,
     val updated_at: String,
     val url: String,
+    val files: Map<String, File>
 )
 
 
@@ -41,3 +44,20 @@ data class Owner(
     val type: String,
     val url: String
 )
+
+data class File(
+    val filename: String,
+    val language: String,
+    val raw_url: String,
+    val size: Int,
+    val type: FileType
+)
+
+enum class FileType {
+    @SerializedName("text/csv")
+    CSV,
+    @SerializedName("text/plain")
+    Plain,
+
+    Unknown
+}

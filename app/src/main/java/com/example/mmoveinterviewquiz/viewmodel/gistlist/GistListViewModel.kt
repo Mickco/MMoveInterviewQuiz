@@ -92,7 +92,7 @@ class GistListViewModel @Inject constructor(private val repository: GithubReposi
                             idText = StringWrap(it.id),
                             url = StringWrap(it.url),
                             isFavorite = it.id in favList,
-                            csvFileName = StringWrap("TODO"),
+                            csvFileName = StringWrap(it.csvFilename.orEmpty()),
                         )
                     }
                     _gistListUIModel.value = gistsUIList

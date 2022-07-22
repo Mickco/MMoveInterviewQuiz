@@ -1,7 +1,6 @@
 package com.example.mmoveinterviewquiz.view.gistlist
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.core.view.isVisible
@@ -76,7 +75,6 @@ class GistListFragment : BaseFragment<FragmentGistListBinding>(), GistListRecycl
                     ?.savedStateHandle
                     ?.getStateFlow(GistDetailFragment.ARG_KEY_IS_FAV_CHANGED, false)
                     ?.collect {
-                        Log.d("Mickco", "onBackFromGistDetail")
                     viewModel.onBackFromGistDetail(it)
                 }
             }

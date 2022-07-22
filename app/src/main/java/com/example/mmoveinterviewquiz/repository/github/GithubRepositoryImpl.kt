@@ -2,6 +2,7 @@ package com.example.mmoveinterviewquiz.repository.github
 
 import com.example.mmoveinterviewquiz.data.local.dao.FavoriteDao
 import com.example.mmoveinterviewquiz.data.local.entity.Favorite
+import com.example.mmoveinterviewquiz.data.network.model.FileType
 import com.example.mmoveinterviewquiz.data.network.model.GetGistsResponseItem
 import com.example.mmoveinterviewquiz.data.network.service.GithubApiService
 import com.example.mmoveinterviewquiz.repository.BaseRepository
@@ -44,7 +45,7 @@ class GithubRepositoryImpl(private val apiService: GithubApiService, private val
             id = id,
             url = url,
             username = owner.login,
-            csvFilename = null
+            csvFilename = files.values.firstOrNull { it.type == FileType.CSV }?.filename
         )
     }
 

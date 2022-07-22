@@ -1,6 +1,5 @@
 package com.example.mmoveinterviewquiz.view.gistlist
 
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
@@ -32,7 +31,6 @@ class GistListRecyclerViewAdapter(private val listener: GistItemListener): Recyc
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-        Log.d("Mickco", "position ${position}")
         val item = uiList.getOrNull(position)
         val context = holder.itemView.context
 
