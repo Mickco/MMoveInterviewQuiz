@@ -11,7 +11,6 @@ import com.example.mmoveinterviewquiz.view.common.TextWrap
 import com.example.mmoveinterviewquiz.viewmodel.common.BaseViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -38,10 +37,9 @@ class GistListViewModel @Inject constructor(private val repository: GithubReposi
 
 
     fun initViewModel() {
-        loadingCount.start()
-        viewModelScope.launch(Dispatchers.Main) {
-            val fetchGistsReq = async { repository.fetchGists() }
-            val fetchFavoritesReq = async { repository.fetchFavorites() }
+        launchLoadingScope {
+            val fetchGistsReq = repository.fetchGistsAsync(viewModelScope)
+            val fetchFavoritesReq = repository.fetchFavoritesAsync(viewModelScope)
             val fetchGistRes = fetchGistsReq.await()
             val fetchFavRes = fetchFavoritesReq.await()
 
@@ -70,20 +68,18 @@ class GistListViewModel @Inject constructor(private val repository: GithubReposi
                     onResponseFail(fetchFavRes)
                 }
             }
-            startFetchingUsersGists()
-            loadingCount.end()
+//            startFetchingUsersGists()
         }
     }
 
     private fun startFetchingUsersGists() {
-        loadingCount.start()
-        viewModelScope.launch(Dispatchers.Main) {
+        launchLoadingScope {
             val usernames = _gistListUIModel.value.gistList.filterIsInstance<GistListUIItem.Gist>().map {
                 it.username
             }
             usernames.distinct().chunked(BATCH_LOADING_SIZE).forEach { res ->
                 val userGistsResultList = res.map {
-                    async { repository.fetchUserGists(it) }
+                    repository.fetchUserGistsAsync(viewModelScope, it)
                 }.awaitAll()
 
                 when(userGistsResultList.all { it is RepositoryResult.Success<List<Gist>> }) {
@@ -121,7 +117,6 @@ class GistListViewModel @Inject constructor(private val repository: GithubReposi
                     }
                 }
             }
-            loadingCount.end()
         }
     }
 

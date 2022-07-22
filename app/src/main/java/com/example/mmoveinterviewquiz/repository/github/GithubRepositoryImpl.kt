@@ -1,40 +1,40 @@
 package com.example.mmoveinterviewquiz.repository.github
 
+import android.util.Log
 import com.example.mmoveinterviewquiz.network.model.GetGistsResponseItem
 import com.example.mmoveinterviewquiz.network.service.GithubApiService
 import com.example.mmoveinterviewquiz.repository.BaseRepository
 import com.example.mmoveinterviewquiz.repository.model.Gist
 import com.example.mmoveinterviewquiz.repository.model.RepositoryResult
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Deferred
 
 class GithubRepositoryImpl(private val apiService: GithubApiService): BaseRepository() {
 
 
-    suspend fun fetchGists(): RepositoryResult<List<Gist>> {
-        return withContext(Dispatchers.IO) {
-            executeApiCall {
-                val apiResult = apiService.getGists()
-
-                apiResult.map {
-                    it.toGist()
-                }
-            }
-        }
-    }
-
-
-    suspend fun fetchUserGists(username: String): RepositoryResult<List<Gist>> {
-        return withContext(Dispatchers.IO) {
-                executeApiCall {
-                    val apiResult = apiService.getUserGists(username)
+    suspend fun fetchGistsAsync(coroutineScope: CoroutineScope): Deferred<RepositoryResult<List<Gist>>> {
+        return executeSuspendCall(coroutineScope) {
+                    Log.d("Mickco", "3")
+                    val apiResult = apiService.getGists()
 
                     apiResult.map {
                         it.toGist()
                     }
+                }
             }
 
+
+
+
+    suspend fun fetchUserGistsAsync(coroutineScope: CoroutineScope, username: String): Deferred<RepositoryResult<List<Gist>>> {
+        return executeSuspendCall(coroutineScope) {
+            val apiResult = apiService.getUserGists(username)
+
+            apiResult.map {
+                it.toGist()
+            }
         }
+
     }
 
     private fun GetGistsResponseItem.toGist(): Gist {
@@ -47,15 +47,15 @@ class GithubRepositoryImpl(private val apiService: GithubApiService): BaseReposi
     }
 
 
-    suspend fun updateFavorite(id: String): RepositoryResult<List<String>> {
-        return withContext(Dispatchers.IO) {
-                RepositoryResult.Success(listOf("1234"))
+    suspend fun updateFavoriteAsync(coroutineScope: CoroutineScope, id: String): Deferred<RepositoryResult<List<String>>> {
+        return executeSuspendCall(coroutineScope) {
+                listOf("1234")
         }
     }
 
-    suspend fun fetchFavorites(): RepositoryResult<List<String>> {
-        return withContext(Dispatchers.IO) {
-                RepositoryResult.Success(listOf("1234"))
+    suspend fun fetchFavoritesAsync(coroutineScope: CoroutineScope): Deferred<RepositoryResult<List<String>>> {
+        return executeSuspendCall(coroutineScope) {
+            listOf("1234")
         }
     }
 }
