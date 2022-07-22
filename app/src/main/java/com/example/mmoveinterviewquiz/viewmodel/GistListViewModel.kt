@@ -27,13 +27,16 @@ class GistListViewModel @Inject constructor(private val repository: GithubReposi
         private const val BATCH_LOADING_SIZE = 4
     }
 
+    private var _gistList = listOf<Gist>()
     private val _gistListUIModel= MutableStateFlow(listOf<GistListUIItem>())
     private val _showLoadingSpinner = MutableStateFlow(false)
     private val _snackbarMessage = MutableSharedFlow<TextWrap>(replay = 0)
+    private val _navigateToDetail = MutableSharedFlow<Gist>(replay = 0)
 
     val gistListUIModel:StateFlow<List<GistListUIItem>> = _gistListUIModel
     val showLoadingSpinner: StateFlow<Boolean> = _showLoadingSpinner
     val snackbarMessage: Flow<TextWrap> = _snackbarMessage
+    val navigateToDetail: Flow<Gist> = _navigateToDetail
 
 
     fun onClickFavoriteGist(gistId: String) {
@@ -65,7 +68,10 @@ class GistListViewModel @Inject constructor(private val repository: GithubReposi
     }
 
     fun onClickItem(gistId: String) {
-
+        launchLoadingScope {
+            val clickedItem = _gistList.firstOrNull{it.id == gistId}  ?: return@launchLoadingScope
+            _navigateToDetail.emit(clickedItem)
+        }
     }
 
     fun initViewModel() {
@@ -77,6 +83,7 @@ class GistListViewModel @Inject constructor(private val repository: GithubReposi
 
             when {
                 fetchGistRes is RepositoryResult.Success && fetchFavRes is RepositoryResult.Success -> {
+                    _gistList = fetchGistRes.data
                     val favList = fetchFavRes.data
                     val gistsUIList = fetchGistRes.data.map {
                         GistListUIItem.Gist(

@@ -5,8 +5,10 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.mmoveinterviewquiz.databinding.FragmentGistListBinding
+import com.example.mmoveinterviewquiz.repository.model.Gist
 import com.example.mmoveinterviewquiz.util.launchAndRepeatWithViewLifecycle
 import com.example.mmoveinterviewquiz.view.common.BaseFragment
 import com.example.mmoveinterviewquiz.viewmodel.GistListViewModel
@@ -62,7 +64,11 @@ class GistListFragment : BaseFragment<FragmentGistListBinding>(), GistListRecycl
                     }
                 }
             }
-
+            launchAndRepeatWithViewLifecycle {
+                viewModel.navigateToDetail.collect {
+                    gotoGistDetailFragment(it)
+                }
+            }
 
         }
 
@@ -75,5 +81,11 @@ class GistListFragment : BaseFragment<FragmentGistListBinding>(), GistListRecycl
 
     override fun onClickFavorite(gistId: String) {
         viewModel.onClickFavoriteGist(gistId)
+    }
+
+    private fun gotoGistDetailFragment(gist: Gist) {
+        findNavController().navigate(GistListFragmentDirections.actionGistListFragmentToGistDetailFragment(
+            selectedGist = gist
+        ))
     }
 }

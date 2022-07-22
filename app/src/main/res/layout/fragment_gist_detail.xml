@@ -18,7 +18,7 @@
             app:layout_scrollFlags="scroll|enterAlways">
 
                 <androidx.constraintlayout.widget.ConstraintLayout
-                    android:id="@+id/gistListToolbar"
+                    android:id="@+id/gistDetailToolbar"
                     android:layout_width="match_parent"
                     android:layout_height="?attr/actionBarSize"
                     android:background="?attr/colorPrimary"
@@ -28,31 +28,21 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="16dp"
-                        android:text="GistListFragment"
+                        android:text="GistDetailFragment"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toTopOf="parent"
                         app:layout_constraintBottom_toBottomOf="parent"
-                        android:textColor="?attr/colorOnPrimary"
-                        android:textSize="18sp" />
+                        android:textColor="?attr/colorOnPrimary" />
 
-
-                    <ProgressBar
-                        android:id="@+id/gistListSpinner"
-                        android:layout_width="wrap_content"
-                        android:layout_height="match_parent"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        android:visibility="invisible"
-                        />
 
                 </androidx.constraintlayout.widget.ConstraintLayout>
 
         </androidx.appcompat.widget.Toolbar>
     </com.google.android.material.appbar.AppBarLayout>
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/gistListRecyclerView"
+    <TextView
+        android:id="@+id/gistDetailTextView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         app:layout_behavior="@string/appbar_scrolling_view_behavior"/>
-
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

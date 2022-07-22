@@ -4,11 +4,22 @@
     android:id="@+id/main_nav"
     app:startDestination="@id/gistListFragment">
 
-<fragment
-    android:id="@+id/gistListFragment"
-    android:name="com.example.mmoveinterviewquiz.view.gistlist.GistListFragment"
-    >
+    <fragment
+        android:id="@+id/gistListFragment"
+        android:name="com.example.mmoveinterviewquiz.view.gistlist.GistListFragment">
+        <action
+            android:id="@+id/action_gistListFragment_to_gistDetailFragment"
+            app:destination="@+id/gistDetailFragment" >
+        </action>
+    </fragment>
 
-</fragment>
+    <fragment
+        android:id="@+id/gistDetailFragment"
+        android:name="com.example.mmoveinterviewquiz.view.gistdetail.GistDetailFragment">
+        <argument
+            android:name="selectedGist"
+            app:argType="com.example.mmoveinterviewquiz.repository.model.Gist"
+            app:nullable="false"/>
+    </fragment>
 
 </navigation>
