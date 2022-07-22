@@ -1,6 +1,5 @@
 package com.example.mmoveinterviewquiz.viewmodel
 
-import android.util.Log
 import androidx.lifecycle.viewModelScope
 import com.example.mmoveinterviewquiz.repository.github.GithubRepositoryImpl
 import com.example.mmoveinterviewquiz.repository.model.ErrorCode
@@ -28,18 +27,18 @@ class GistListViewModel @Inject constructor(private val repository: GithubReposi
         private const val BATCH_LOADING_SIZE = 4
     }
 
-    private val _gistListUIModel= MutableStateFlow(GistListUIModel())
+    private val _gistListUIModel= MutableStateFlow(listOf<GistListUIItem>())
     private val _showLoadingSpinner = MutableStateFlow(false)
     private val _snackbarMessage = MutableSharedFlow<TextWrap>(replay = 0)
 
-    val gistListUIModel:StateFlow<GistListUIModel> = _gistListUIModel
+    val gistListUIModel:StateFlow<List<GistListUIItem>> = _gistListUIModel
     val showLoadingSpinner: StateFlow<Boolean> = _showLoadingSpinner
     val snackbarMessage: Flow<TextWrap> = _snackbarMessage
 
 
     fun onClickFavoriteGist(position: Int) {
         launchLoadingScope {
-            val clickedItem = (_gistListUIModel.value.gistList.getOrNull(position) as? GistListUIItem.Gist) ?: return@launchLoadingScope
+            val clickedItem = (_gistListUIModel.value.getOrNull(position) as? GistListUIItem.Gist) ?: return@launchLoadingScope
             val res = when (clickedItem.isFavorite) {
                 true -> repository.deleteFavoriteAsync(viewModelScope, clickedItem.id)
                 false -> repository.addFavoriteAsync(viewModelScope, clickedItem.id)
@@ -47,7 +46,7 @@ class GistListViewModel @Inject constructor(private val repository: GithubReposi
 
             when (res) {
                 is RepositoryResult.Success -> {
-                    val newList = _gistListUIModel.value.gistList.mapIndexed { idx, item ->
+                    val newList = _gistListUIModel.value.mapIndexed { idx, item ->
                         when (position == idx && item is GistListUIItem.Gist) {
                             true -> item.copy(
                                 isFavorite = !item.isFavorite
@@ -55,9 +54,7 @@ class GistListViewModel @Inject constructor(private val repository: GithubReposi
                             false -> item
                         }
                     }
-                    _gistListUIModel.value = _gistListUIModel.value.copy(
-                        gistList = newList
-                    )
+                    _gistListUIModel.value = newList
                 }
                 is RepositoryResult.Fail -> {
                     onResponseFail(res)
@@ -80,7 +77,6 @@ class GistListViewModel @Inject constructor(private val repository: GithubReposi
 
             when {
                 fetchGistRes is RepositoryResult.Success && fetchFavRes is RepositoryResult.Success -> {
-                    val uiModel = _gistListUIModel.value
                     val favList = fetchFavRes.data
                     val gistsUIList = fetchGistRes.data.map {
                         GistListUIItem.Gist(
@@ -92,9 +88,7 @@ class GistListViewModel @Inject constructor(private val repository: GithubReposi
                             csvFileName = StringWrap("TODO"),
                         )
                     }
-                    _gistListUIModel.value = uiModel.copy(
-                        gistList = gistsUIList
-                    )
+                    _gistListUIModel.value = gistsUIList
                 }
                 fetchGistRes is RepositoryResult.Fail -> {
                     onResponseFail(fetchGistRes)
@@ -109,7 +103,7 @@ class GistListViewModel @Inject constructor(private val repository: GithubReposi
 
     private fun startFetchingUsersGists() {
         launchLoadingScope {
-            val usernames = _gistListUIModel.value.gistList.filterIsInstance<GistListUIItem.Gist>().map {
+            val usernames = _gistListUIModel.value.filterIsInstance<GistListUIItem.Gist>().map {
                 it.username
             }
             usernames.distinct().chunked(BATCH_LOADING_SIZE).forEach { res ->
@@ -121,11 +115,10 @@ class GistListViewModel @Inject constructor(private val repository: GithubReposi
                     true -> {
                         userGistsResultList as List<RepositoryResult.Success<List<Gist>>>
                         val userGistsCountMap = userGistsResultList.map {
-                            Log.d("Mickco", "list ${it.data}")
                             it.data.first().username to it.data.size
                         }.toMap()
 
-                        val currentGistUIList = _gistListUIModel.value.gistList
+                        val currentGistUIList = _gistListUIModel.value
                         val newGistUIList = mutableListOf<GistListUIItem>()
                         currentGistUIList.forEach {
                             newGistUIList.add(it)
@@ -143,9 +136,7 @@ class GistListViewModel @Inject constructor(private val repository: GithubReposi
                                 )
                             }
                         }
-                        _gistListUIModel.value = _gistListUIModel.value.copy(
-                            gistList = newGistUIList
-                        )
+                        _gistListUIModel.value = newGistUIList
                     }
                     false -> {
                         val failResult = userGistsResultList.filterIsInstance<RepositoryResult.Fail>().first()
@@ -175,37 +166,11 @@ class GistListViewModel @Inject constructor(private val repository: GithubReposi
         }
     }
 
-    private fun updateOnFavoriteListResponse(res: RepositoryResult<List<String>>) {
-        when (res) {
-            is RepositoryResult.Success -> {
-                val uiModel = _gistListUIModel.value
-                val favList = res.data
-                val gistListWithFav = uiModel.gistList.map {
-                    if (it is GistListUIItem.Gist) {
-                        it.copy(isFavorite = it.id in favList)
-                    } else {
-                        it
-                    }
-                }
-                _gistListUIModel.value = uiModel.copy(
-                    gistList = gistListWithFav
-                )
-            }
-            is RepositoryResult.Fail -> {
-
-            }
-        }
-    }
-
     override fun onLoadingCountChanged() {
         _showLoadingSpinner.value = loadingCount.get() != 0
     }
-
 }
 
-data class GistListUIModel(
-    val gistList: List<GistListUIItem> = listOf()
-)
 
 sealed class GistListUIItem{
     abstract val username: String

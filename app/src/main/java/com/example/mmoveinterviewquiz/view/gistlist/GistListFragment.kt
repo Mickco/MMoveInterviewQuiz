@@ -41,7 +41,7 @@ class GistListFragment : BaseFragment<FragmentGistListBinding>(), GistListRecycl
                 viewModel.gistListUIModel.collect {
                     val adapter = gistListRecyclerView.adapter
                     if (adapter is GistListRecyclerViewAdapter) {
-                        adapter.uiList = it.gistList
+                        adapter.uiList = it
                     }
                 }
             }
