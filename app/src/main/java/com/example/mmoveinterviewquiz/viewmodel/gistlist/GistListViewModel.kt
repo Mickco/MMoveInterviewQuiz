@@ -43,8 +43,8 @@ class GistListViewModel @Inject constructor(private val repository: GithubReposi
         launchLoadingScope {
             val clickedItem = (_gistListUIModel.value.firstOrNull{it.id == gistId} as? GistListUIItem.Gist) ?: return@launchLoadingScope
             val res = when (clickedItem.isFavorite) {
-                true -> repository.deleteFavoriteAsync(viewModelScope, clickedItem.id)
-                false -> repository.addFavoriteAsync(viewModelScope, clickedItem.id)
+                true -> repository.deleteFavoriteAsync(this, clickedItem.id)
+                false -> repository.addFavoriteAsync(this, clickedItem.id)
             }.await()
 
             when (res) {
@@ -76,8 +76,8 @@ class GistListViewModel @Inject constructor(private val repository: GithubReposi
 
     fun initViewModel() {
         launchLoadingScope {
-            val fetchGistsReq = repository.fetchGistsAsync(viewModelScope)
-            val fetchFavoritesReq = repository.fetchFavoritesAsync(viewModelScope)
+            val fetchGistsReq = repository.fetchGistsAsync(this)
+            val fetchFavoritesReq = repository.fetchFavoritesAsync(this)
             val fetchGistRes = fetchGistsReq.await()
             val fetchFavRes = fetchFavoritesReq.await()
 
@@ -112,7 +112,7 @@ class GistListViewModel @Inject constructor(private val repository: GithubReposi
         if (!isFavChanged) return
 
         launchLoadingScope {
-            val res = repository.fetchFavoritesAsync(viewModelScope).await()
+            val res = repository.fetchFavoritesAsync(this).await()
 
             when (res) {
                 is RepositoryResult.Success -> {
@@ -137,7 +137,7 @@ class GistListViewModel @Inject constructor(private val repository: GithubReposi
             }
             usernames.distinct().chunked(BATCH_LOADING_SIZE).forEach { res ->
                 val userGistsResultList = res.map {
-                    repository.fetchUserGistsAsync(viewModelScope, it)
+                    repository.fetchUserGistsAsync(this, it)
                 }.awaitAll()
 
                 when(userGistsResultList.all { it is RepositoryResult.Success<List<Gist>> }) {

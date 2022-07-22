@@ -1,6 +1,5 @@
 package com.example.mmoveinterviewquiz.viewmodel.gistdetail
 
-import androidx.lifecycle.viewModelScope
 import com.example.mmoveinterviewquiz.repository.github.GithubRepositoryImpl
 import com.example.mmoveinterviewquiz.repository.model.Gist
 import com.example.mmoveinterviewquiz.repository.model.RepositoryResult
@@ -29,7 +28,7 @@ class GistDetailViewModel @Inject constructor(private val repository: GithubRepo
         _displayText.value = StringWrap(gist.toString())
 
         launchLoadingScope {
-            val res = repository.fetchFavoritesAsync(viewModelScope).await()
+            val res = repository.fetchFavoritesAsync(this).await()
 
             if (res is RepositoryResult.Success) {
                 _isFavorite.value = gist.id in res.data
@@ -41,8 +40,8 @@ class GistDetailViewModel @Inject constructor(private val repository: GithubRepo
         launchLoadingScope {
             val gistId = _selectedGist.id
             val res = when (_isFavorite.value) {
-                true -> repository.deleteFavoriteAsync(viewModelScope, gistId)
-                false -> repository.addFavoriteAsync(viewModelScope, gistId)
+                true -> repository.deleteFavoriteAsync(this, gistId)
+                false -> repository.addFavoriteAsync(this, gistId)
             }.await()
 
             if (res is RepositoryResult.Success) {
