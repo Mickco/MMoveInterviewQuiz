@@ -120,8 +120,8 @@ class GistListViewModel @Inject constructor(private val repository: GithubReposi
                         onResponseFail(failResult)
                     }
                 }
-                loadingCount.end()
             }
+            loadingCount.end()
         }
     }
 

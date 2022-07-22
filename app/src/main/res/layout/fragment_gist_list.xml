@@ -42,7 +42,7 @@
                         android:textSize="18sp" />
 
 
-                    <Spinner
+                    <ProgressBar
                         android:id="@+id/gistListSpinner"
                         android:layout_width="wrap_content"
                         android:layout_height="match_parent"
