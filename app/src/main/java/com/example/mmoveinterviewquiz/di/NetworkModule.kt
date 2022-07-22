@@ -4,7 +4,6 @@ import android.content.Context
 import com.example.mmoveinterviewquiz.BuildConstant
 import com.example.mmoveinterviewquiz.network.interceptor.NetworkConnectionInterceptor
 import com.example.mmoveinterviewquiz.network.service.GithubApiService
-import com.example.mmoveinterviewquiz.repository.github.GithubRepository
 import com.example.mmoveinterviewquiz.repository.github.GithubRepositoryImpl
 import dagger.Module
 import dagger.Provides
@@ -54,7 +53,7 @@ class NetworkModule {
     @Provides
     fun provideGithubRepository(
         apiService: GithubApiService
-    ): GithubRepository {
+    ): GithubRepositoryImpl {
         return GithubRepositoryImpl(
             apiService = apiService
         )

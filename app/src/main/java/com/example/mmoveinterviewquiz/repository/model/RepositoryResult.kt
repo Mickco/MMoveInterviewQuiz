@@ -1,4 +1,4 @@
-package com.mickco.assigment9gag.repository.model
+package com.example.mmoveinterviewquiz.repository.model
 
 sealed class RepositoryResult<out DATA>{
     data class Success<out DATA>(val data: DATA): RepositoryResult<DATA>()

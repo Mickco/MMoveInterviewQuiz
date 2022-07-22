@@ -1,14 +1,14 @@
 package com.example.mmoveinterviewquiz.repository
 
-import com.mickco.assigment9gag.repository.model.ErrorCode
-import com.mickco.assigment9gag.repository.model.ErrorMessage
-import com.mickco.assigment9gag.repository.model.RepositoryResult
+import com.example.mmoveinterviewquiz.repository.model.ErrorCode
+import com.example.mmoveinterviewquiz.repository.model.ErrorMessage
+import com.example.mmoveinterviewquiz.repository.model.RepositoryResult
 import retrofit2.HttpException
 import java.io.IOException
 import java.net.UnknownHostException
 
 abstract class BaseRepository {
-    suspend fun <T> executeApiCall(apiCall: suspend () -> T ): RepositoryResult<T>{
+    suspend fun <T> executeApiCall(apiCall: suspend () -> T ): RepositoryResult<T> {
         return try {
             RepositoryResult.Success(apiCall())
         }catch (e: HttpException) {
@@ -28,6 +28,8 @@ abstract class BaseRepository {
             RepositoryResult.Fail(ErrorCode.UnknownError)
         }
     }
+
+
 
     companion object {
         const val DEFAULT_ERROR_MESSAGE_CODE = -1

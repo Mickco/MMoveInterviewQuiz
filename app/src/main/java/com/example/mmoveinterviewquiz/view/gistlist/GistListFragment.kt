@@ -3,18 +3,21 @@ package com.example.mmoveinterviewquiz.view.gistlist
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.mmoveinterviewquiz.databinding.FragmentGistListBinding
 import com.example.mmoveinterviewquiz.util.launchAndRepeatWithViewLifecycle
 import com.example.mmoveinterviewquiz.view.common.BaseFragment
 import com.example.mmoveinterviewquiz.viewmodel.GistListViewModel
+import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class GistListFragment : BaseFragment<FragmentGistListBinding>() {
 
     private val viewModel: GistListViewModel by viewModels()
+    private var snackBar: Snackbar? = null
 
     override fun onViewBinding(
         inflater: LayoutInflater,
@@ -43,6 +46,25 @@ class GistListFragment : BaseFragment<FragmentGistListBinding>() {
                 }
 
             }
+            launchAndRepeatWithViewLifecycle {
+                viewModel.showLoadingSpinner.collect {
+                    gistListSpinner.isVisible = it
+                }
+            }
+            launchAndRepeatWithViewLifecycle {
+                viewModel.snackbarMessage.collect {
+                    // Display Error Message using snackbar
+                    val msg = it.getString(requireContext())
+                    if (msg.isNotEmpty() && snackBar?.isShown != true){
+                        val view = this@GistListFragment.view ?: return@collect
+                        snackBar = Snackbar.make(view, msg, Snackbar.LENGTH_LONG).apply {
+                            show()
+                        }
+                    }
+                }
+            }
+
+
         }
 
     }
