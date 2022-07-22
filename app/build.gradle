@@ -1,6 +1,9 @@
 plugins {
     id 'com.android.application'
     id 'org.jetbrains.kotlin.android'
+    id 'kotlin-android'
+    id 'kotlin-kapt'
+    id 'dagger.hilt.android.plugin'
 }
 
 android {
@@ -8,7 +11,7 @@ android {
 
     defaultConfig {
         applicationId "com.example.mmoveinterviewquiz"
-        minSdk 23
+        minSdk 26
         targetSdk 32
         versionCode 1
         versionName "1.0"
@@ -29,15 +32,83 @@ android {
     kotlinOptions {
         jvmTarget = '1.8'
     }
+
+    buildFeatures {
+        viewBinding true
+    }
+
+    testOptions {
+        unitTests {
+            includeAndroidResources = true
+        }
+    }
 }
 
 dependencies {
 
-    implementation 'androidx.core:core-ktx:1.7.0'
-    implementation 'androidx.appcompat:appcompat:1.4.2'
-    implementation 'com.google.android.material:material:1.6.1'
-    implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
-    testImplementation 'junit:junit:4.13.2'
-    androidTestImplementation 'androidx.test.ext:junit:1.1.3'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'
+    ext {
+        kotlin_version = "1.4.32"
+        retrofit_version = "2.9.0"
+        gson_version = "2.8.9"
+        okhttp3_logging_version = "4.7.2"
+        coroutines_version = "1.4.2"
+        mockk_version = "1.10.6"
+
+        junit_version = "4.13.2"
+        hilt_version = "2.40.5"
+        lifecycle_version = "2.5.0"
+        legacy_support_version = "1.0.0"
+        view_ktx_version = "1.5.0"
+
+        core_ktx_version = "1.8.0"
+        appcompat_version = "1.4.2"
+        material_version = "1.6.1"
+        consraintlayout_version = "2.1.4"
+        recyclerview_version = "1.2.1"
+
+        core_testing_version = "2.1.0"
+        junit_ext_version = "1.1.3"
+        nav_version = "2.5.0"
+    }
+
+    implementation "androidx.legacy:legacy-support-v4:$legacy_support_version"
+    implementation "androidx.lifecycle:lifecycle-livedata-ktx:$lifecycle_version"
+    implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycle_version"
+
+    implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:$coroutines_version"
+    implementation "androidx.core:core-ktx:$core_ktx_version"
+    implementation "androidx.appcompat:appcompat:$appcompat_version"
+    implementation "com.google.android.material:material:$material_version"
+    implementation "androidx.constraintlayout:constraintlayout:$consraintlayout_version"
+    implementation "androidx.recyclerview:recyclerview:$recyclerview_version"
+
+    implementation "androidx.activity:activity-ktx:$view_ktx_version"
+    implementation "androidx.fragment:fragment-ktx:$view_ktx_version"
+
+
+    //network
+    implementation "com.google.code.gson:gson:$gson_version"
+    implementation "com.squareup.okhttp3:logging-interceptor:$okhttp3_logging_version"
+    implementation "com.squareup.retrofit2:retrofit:$retrofit_version"
+    implementation "com.squareup.retrofit2:converter-gson:$retrofit_version"
+
+    //unit test
+    testImplementation "junit:junit:$junit_version"
+    testImplementation "io.mockk:mockk:$mockk_version"
+    testImplementation "androidx.arch.core:core-testing:$core_testing_version"
+    testImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutines_version"
+    testImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-test:$coroutines_version"
+
+
+    //hilt
+    kapt "com.google.dagger:hilt-compiler:$hilt_version"
+    implementation "com.google.dagger:hilt-android:$hilt_version"
+    androidTestImplementation "com.google.dagger:hilt-android-testing:$hilt_version"
+    kaptAndroidTest "com.google.dagger:hilt-android-compiler:$hilt_version"
+
+    //nav
+    implementation "androidx.navigation:navigation-fragment-ktx:$nav_version"
+    implementation "androidx.navigation:navigation-ui-ktx:$nav_version"
+    implementation "androidx.navigation:navigation-dynamic-features-fragment:$nav_version"
 }
