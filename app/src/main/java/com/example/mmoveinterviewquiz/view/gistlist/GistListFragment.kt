@@ -14,7 +14,7 @@ import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
-class GistListFragment : BaseFragment<FragmentGistListBinding>() {
+class GistListFragment : BaseFragment<FragmentGistListBinding>(), GistListRecyclerViewAdapter.GistItemListener {
 
     private val viewModel: GistListViewModel by viewModels()
     private var snackBar: Snackbar? = null
@@ -35,7 +35,7 @@ class GistListFragment : BaseFragment<FragmentGistListBinding>() {
     override fun setupView() {
         with(binding) {
             gistListRecyclerView.layoutManager = LinearLayoutManager(requireContext())
-            gistListRecyclerView.adapter = GistListRecyclerViewAdapter()
+            gistListRecyclerView.adapter = GistListRecyclerViewAdapter(this@GistListFragment)
 
             launchAndRepeatWithViewLifecycle {
                 viewModel.gistListUIModel.collect {
@@ -44,7 +44,6 @@ class GistListFragment : BaseFragment<FragmentGistListBinding>() {
                         adapter.uiList = it.gistList
                     }
                 }
-
             }
             launchAndRepeatWithViewLifecycle {
                 viewModel.showLoadingSpinner.collect {
@@ -69,4 +68,11 @@ class GistListFragment : BaseFragment<FragmentGistListBinding>() {
 
     }
 
+    override fun onClickFavorite(position: Int) {
+        viewModel.onClickFavoriteGist(position)
+    }
+
+    override fun onClickItem(position: Int) {
+        viewModel.onClickItem(position)
+    }
 }

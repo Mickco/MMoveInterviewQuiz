@@ -1,5 +1,6 @@
 package com.example.mmoveinterviewquiz.viewmodel
 
+import android.util.Log
 import androidx.lifecycle.viewModelScope
 import com.example.mmoveinterviewquiz.repository.github.GithubRepositoryImpl
 import com.example.mmoveinterviewquiz.repository.model.ErrorCode
@@ -36,6 +37,14 @@ class GistListViewModel @Inject constructor(private val repository: GithubReposi
     val snackbarMessage: Flow<TextWrap> = _snackbarMessage
 
 
+    fun onClickFavoriteGist(position: Int) {
+
+    }
+
+    fun onClickItem(position: Int) {
+
+    }
+
     fun initViewModel() {
         launchLoadingScope {
             val fetchGistsReq = repository.fetchGistsAsync(viewModelScope)
@@ -68,7 +77,7 @@ class GistListViewModel @Inject constructor(private val repository: GithubReposi
                     onResponseFail(fetchFavRes)
                 }
             }
-//            startFetchingUsersGists()
+            startFetchingUsersGists()
         }
     }
 
@@ -86,6 +95,7 @@ class GistListViewModel @Inject constructor(private val repository: GithubReposi
                     true -> {
                         userGistsResultList as List<RepositoryResult.Success<List<Gist>>>
                         val userGistsCountMap = userGistsResultList.map {
+                            Log.d("Mickco", "list ${it.data}")
                             it.data.first().username to it.data.size
                         }.toMap()
 
@@ -100,7 +110,7 @@ class GistListViewModel @Inject constructor(private val repository: GithubReposi
                                         id = it.id,
                                         username = it.username,
                                         info = FormatWrap(
-                                            StringWrap("This user is %s.\nHe/She has gists count of %s.\n"),
+                                            StringWrap("This user is %s.\nHe/She has gists count of %s."),
                                             StringWrap(it.username),
                                             StringWrap(gistsCount.toString()))
                                     )
@@ -137,8 +147,6 @@ class GistListViewModel @Inject constructor(private val repository: GithubReposi
                 }
             )
         }
-
-
     }
 
     private fun updateOnFavoriteListResponse(res: RepositoryResult<List<String>>) {

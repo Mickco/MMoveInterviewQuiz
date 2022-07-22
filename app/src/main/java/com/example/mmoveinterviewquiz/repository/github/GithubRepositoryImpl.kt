@@ -14,14 +14,13 @@ class GithubRepositoryImpl(private val apiService: GithubApiService): BaseReposi
 
     suspend fun fetchGistsAsync(coroutineScope: CoroutineScope): Deferred<RepositoryResult<List<Gist>>> {
         return executeSuspendCall(coroutineScope) {
-                    Log.d("Mickco", "3")
-                    val apiResult = apiService.getGists()
+            val apiResult = apiService.getGists()
 
-                    apiResult.map {
-                        it.toGist()
-                    }
-                }
+            apiResult.map {
+                it.toGist()
             }
+        }
+    }
 
 
 
@@ -33,6 +32,7 @@ class GithubRepositoryImpl(private val apiService: GithubApiService): BaseReposi
             apiResult.map {
                 it.toGist()
             }
+            list
         }
 
     }
