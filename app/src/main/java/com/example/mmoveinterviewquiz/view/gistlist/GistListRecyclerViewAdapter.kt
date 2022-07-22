@@ -5,7 +5,6 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
-import com.example.mmoveinterviewquiz.R
 import com.example.mmoveinterviewquiz.databinding.ItemGistBinding
 import com.example.mmoveinterviewquiz.databinding.ItemUserInfoBinding
 import com.example.mmoveinterviewquiz.viewmodel.GistListUIItem
@@ -48,12 +47,7 @@ class GistListRecyclerViewAdapter(private val listener: GistItemListener): Recyc
                     gistItemFileNameText.text = item.csvFileName.getString(context)
 
 
-                    gistItemFavoriteImage.setImageResource(
-                        when(item.isFavorite) {
-                            true -> R.drawable.ic_fav_on
-                            false -> R.drawable.ic_fav_off
-                        }
-                    )
+                    gistItemFavoriteImage.isFavorite = item.isFavorite
                     gistItemFavoriteImage.setOnClickListener {
                         listener.onClickFavorite(item.id)
                     }

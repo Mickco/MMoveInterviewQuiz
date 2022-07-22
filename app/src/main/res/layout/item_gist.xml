@@ -25,7 +25,7 @@
         app:layout_constraintEnd_toStartOf="@id/gistItemFavoriteImage"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <ImageView
+    <com.example.mmoveinterviewquiz.view.component.FavoriteButton
         android:id="@+id/gistItemFavoriteImage"
         android:layout_width="40dp"
         android:layout_height="40dp"

@@ -34,6 +34,16 @@
                         app:layout_constraintBottom_toBottomOf="parent"
                         android:textColor="?attr/colorOnPrimary" />
 
+                    <com.example.mmoveinterviewquiz.view.component.FavoriteButton
+                        android:id="@+id/gistDetailFavoriteButton"
+                        android:layout_width="40dp"
+                        android:layout_height="0dp"
+                        android:src="@drawable/ic_fav_off"
+                        android:layout_marginEnd="16dp"
+                        android:tint="@color/white"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintBottom_toBottomOf="parent"/>
 
                 </androidx.constraintlayout.widget.ConstraintLayout>
 
