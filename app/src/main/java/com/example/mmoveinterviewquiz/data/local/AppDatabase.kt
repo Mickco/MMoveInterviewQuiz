@@ -6,7 +6,7 @@ import com.example.mmoveinterviewquiz.data.local.dao.FavoriteDao
 import com.example.mmoveinterviewquiz.data.local.entity.Favorite
 
 
-@Database(entities = [Favorite::class], version = 1)
+@Database(entities = [Favorite::class], version = 1, exportSchema = false)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun favoriteDao(): FavoriteDao
 }
