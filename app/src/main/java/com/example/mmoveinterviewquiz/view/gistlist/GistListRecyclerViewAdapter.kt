@@ -3,6 +3,7 @@ package com.example.mmoveinterviewquiz.view.gistlist
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.core.view.isGone
+import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.example.mmoveinterviewquiz.R
 import com.example.mmoveinterviewquiz.databinding.ItemGistBinding
@@ -18,9 +19,10 @@ class GistListRecyclerViewAdapter(private val listener: GistItemListener): Recyc
 
     var uiList: List<GistListUIItem> = listOf()
         set(value) {
+            val result = DiffUtil.calculateDiff(GistListDiffUtil(oldListInfo = field, newListInfo = value))
             field = value
             // TODO: Use difftool later
-            notifyDataSetChanged()
+            result.dispatchUpdatesTo(this)
         }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
@@ -85,6 +87,32 @@ class GistListRecyclerViewAdapter(private val listener: GistItemListener): Recyc
 
     inner class UserInfoItemViewHolder(val binding: ItemUserInfoBinding) :
         RecyclerView.ViewHolder(binding.root)
+
+    inner class GistListDiffUtil(
+        private val oldListInfo: List<GistListUIItem>,
+        private val newListInfo: List<GistListUIItem>
+    ) : DiffUtil.Callback() {
+        override fun getOldListSize(): Int {
+            return oldListInfo.size
+        }
+
+        override fun getNewListSize(): Int {
+            return newListInfo.size
+        }
+
+        override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
+            val old = oldListInfo.getOrNull(oldItemPosition)
+            val new = newListInfo.getOrNull(newItemPosition)
+
+            return old != null && new != null && old::class == new::class && old.id == new.id
+        }
+
+        override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
+            val old = oldListInfo.getOrNull(oldItemPosition)
+            val new = newListInfo.getOrNull(newItemPosition)
+            return old == new
+        }
+    }
 
     interface GistItemListener {
         fun onClickFavorite(position: Int)
