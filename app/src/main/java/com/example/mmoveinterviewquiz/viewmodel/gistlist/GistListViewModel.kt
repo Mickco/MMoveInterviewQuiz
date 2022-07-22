@@ -5,6 +5,7 @@ import com.example.mmoveinterviewquiz.repository.github.GithubRepositoryImpl
 import com.example.mmoveinterviewquiz.repository.model.ErrorCode
 import com.example.mmoveinterviewquiz.repository.model.Gist
 import com.example.mmoveinterviewquiz.repository.model.RepositoryResult
+import com.example.mmoveinterviewquiz.util.safeSubList
 import com.example.mmoveinterviewquiz.view.common.FormatWrap
 import com.example.mmoveinterviewquiz.view.common.StringWrap
 import com.example.mmoveinterviewquiz.view.common.TextWrap
@@ -28,6 +29,8 @@ class GistListViewModel @Inject constructor(private val repository: GithubReposi
     }
 
     private var _gistList = listOf<Gist>()
+    private var _lastfetchedUserInfoIdx = 0
+    private var _fetchedUsernameHistory = mutableListOf<String>()
     private val _gistListUIModel= MutableStateFlow(listOf<GistListUIItem>())
     private val _showLoadingSpinner = MutableStateFlow(false)
     private val _snackbarMessage = MutableSharedFlow<TextWrap>(replay = 0)
@@ -104,7 +107,6 @@ class GistListViewModel @Inject constructor(private val repository: GithubReposi
                     onResponseFail(fetchFavRes)
                 }
             }
-            startFetchingUsersGists()
         }
     }
 
@@ -130,47 +132,57 @@ class GistListViewModel @Inject constructor(private val repository: GithubReposi
         }
     }
 
-    private fun startFetchingUsersGists() {
+    fun onScrollLoadMoreUserInfo(lastCompletelyVisibleItemPosition: Int) {
+        if (loadingCount.get() != 0) return
+        val lastVisibleGistIdx = _gistListUIModel.value.subList(0, lastCompletelyVisibleItemPosition).filterIsInstance<GistListUIItem.Gist>().lastIndex
+        if (lastVisibleGistIdx < _lastfetchedUserInfoIdx) return
         launchLoadingScope {
-            val usernames = _gistListUIModel.value.filterIsInstance<GistListUIItem.Gist>().map {
+            val usernames = _gistListUIModel.value
+                .filterIsInstance<GistListUIItem.Gist>()
+                .safeSubList(_lastfetchedUserInfoIdx, _lastfetchedUserInfoIdx+BATCH_LOADING_SIZE)
+                .map {
                 it.username
             }
-            usernames.distinct().chunked(BATCH_LOADING_SIZE).forEach { res ->
-                val userGistsResultList = res.map {
-                    repository.fetchUserGistsAsync(this, it)
-                }.awaitAll()
 
-                when(userGistsResultList.all { it is RepositoryResult.Success<List<Gist>> }) {
-                    true -> {
-                        userGistsResultList as List<RepositoryResult.Success<List<Gist>>>
-                        val userGistsCountMap = userGistsResultList.map {
-                            it.data.first().username to it.data.size
-                        }.toMap()
+            val userGistsResultList = usernames
+                .distinct()
+                .filter { it !in _fetchedUsernameHistory }
+                .map {
+                repository.fetchUserGistsAsync(this, it)
+            }.awaitAll()
 
-                        val currentGistUIList = _gistListUIModel.value
-                        val newGistUIList = mutableListOf<GistListUIItem>()
-                        currentGistUIList.forEach {
-                            newGistUIList.add(it)
-                            val gistsCount = userGistsCountMap.getOrDefault(it.username, -1)
-                            if (it is GistListUIItem.Gist && gistsCount > USER_GISTS_THRESHOLD) {
-                                newGistUIList.add(
-                                    GistListUIItem.UserInfo(
-                                        id = it.id,
-                                        username = it.username,
-                                        info = FormatWrap(
-                                            StringWrap("This user is %s.\nHe/She has gists count of %s."),
-                                            StringWrap(it.username),
-                                            StringWrap(gistsCount.toString()))
-                                    )
+            when(userGistsResultList.all { it is RepositoryResult.Success<List<Gist>> }) {
+                true -> {
+                    userGistsResultList as List<RepositoryResult.Success<List<Gist>>>
+                    val userGistsCountMap = userGistsResultList.map {
+                        it.data.first().username to it.data.size
+                    }.toMap()
+
+                    val currentGistUIList = _gistListUIModel.value
+                    val newGistUIList = mutableListOf<GistListUIItem>()
+                    currentGistUIList.forEach {
+                        newGistUIList.add(it)
+                        val gistsCount = userGistsCountMap.getOrDefault(it.username, -1)
+                        if (it is GistListUIItem.Gist && gistsCount > USER_GISTS_THRESHOLD) {
+                            newGistUIList.add(
+                                GistListUIItem.UserInfo(
+                                    id = it.id,
+                                    username = it.username,
+                                    info = FormatWrap(
+                                        StringWrap("This user is %s.\nHe/She has gists count of %s."),
+                                        StringWrap(it.username),
+                                        StringWrap(gistsCount.toString()))
                                 )
-                            }
+                            )
                         }
-                        _gistListUIModel.value = newGistUIList
                     }
-                    false -> {
-                        val failResult = userGistsResultList.filterIsInstance<RepositoryResult.Fail>().first()
-                        onResponseFail(failResult)
-                    }
+                    _fetchedUsernameHistory.addAll(userGistsCountMap.keys)
+                    _lastfetchedUserInfoIdx += BATCH_LOADING_SIZE
+                    _gistListUIModel.value = newGistUIList
+                }
+                false -> {
+                    val failResult = userGistsResultList.filterIsInstance<RepositoryResult.Fail>().first()
+                    onResponseFail(failResult)
                 }
             }
         }

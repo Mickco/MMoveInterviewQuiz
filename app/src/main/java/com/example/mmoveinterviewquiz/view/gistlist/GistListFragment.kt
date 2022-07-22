@@ -7,6 +7,7 @@ import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.example.mmoveinterviewquiz.databinding.FragmentGistListBinding
 import com.example.mmoveinterviewquiz.repository.model.Gist
 import com.example.mmoveinterviewquiz.util.launchAndRepeatWithViewLifecycle
@@ -21,6 +22,8 @@ class GistListFragment : BaseFragment<FragmentGistListBinding>(), GistListRecycl
 
     private val viewModel: GistListViewModel by viewModels()
     private var snackBar: Snackbar? = null
+    private val onScrollListener = GistListOnScrollListener()
+
 
     override fun onViewBinding(
         inflater: LayoutInflater,
@@ -33,6 +36,17 @@ class GistListFragment : BaseFragment<FragmentGistListBinding>(), GistListRecycl
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         viewModel.initViewModel()
+    }
+
+    override fun onStart() {
+        super.onStart()
+        binding.gistListRecyclerView.addOnScrollListener(onScrollListener)
+
+    }
+
+    override fun onStop() {
+        super.onStop()
+        binding.gistListRecyclerView.removeOnScrollListener(onScrollListener)
     }
 
     override fun setupView() {
@@ -79,7 +93,6 @@ class GistListFragment : BaseFragment<FragmentGistListBinding>(), GistListRecycl
                 }
             }
 
-
         }
 
     }
@@ -97,5 +110,15 @@ class GistListFragment : BaseFragment<FragmentGistListBinding>(), GistListRecycl
         findNavController().navigate(GistListFragmentDirections.actionGistListFragmentToGistDetailFragment(
             selectedGist = gist
         ))
+    }
+
+    inner class GistListOnScrollListener: RecyclerView.OnScrollListener() {
+        override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+            super.onScrolled(recyclerView, dx, dy)
+            val linearLayoutManager =
+                binding.gistListRecyclerView.layoutManager as LinearLayoutManager
+
+            viewModel.onScrollLoadMoreUserInfo(linearLayoutManager.findLastCompletelyVisibleItemPosition())
+        }
     }
 }
