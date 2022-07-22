@@ -21,6 +21,8 @@ class GistDetailViewModel @Inject constructor(private val repository: GithubRepo
 
     val isFavorite: StateFlow<Boolean> = _isFavorite
     val displayText: StateFlow<TextWrap> = _displayText
+    var isFavChanged: Boolean = false
+        private set
 
     fun initViewModel(gist: Gist) {
         _selectedGist = gist
@@ -44,6 +46,7 @@ class GistDetailViewModel @Inject constructor(private val repository: GithubRepo
             }.await()
 
             if (res is RepositoryResult.Success) {
+                isFavChanged = true
                 _isFavorite.value = gistId in res.data
             }
         }

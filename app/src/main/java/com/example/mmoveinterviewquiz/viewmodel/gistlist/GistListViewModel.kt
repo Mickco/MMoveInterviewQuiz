@@ -108,6 +108,28 @@ class GistListViewModel @Inject constructor(private val repository: GithubReposi
         }
     }
 
+    fun onBackFromGistDetail(isFavChanged: Boolean) {
+        if (!isFavChanged) return
+
+        launchLoadingScope {
+            val res = repository.fetchFavoritesAsync(viewModelScope).await()
+
+            when (res) {
+                is RepositoryResult.Success -> {
+                    _gistListUIModel.value = _gistListUIModel.value.map {
+                        when(it) {
+                            is GistListUIItem.Gist -> it.copy(isFavorite = it.id in res.data)
+                            else -> it
+                        }
+                    }
+                }
+                is RepositoryResult.Fail -> {
+                    onResponseFail(res)
+                }
+            }
+        }
+    }
+
     private fun startFetchingUsersGists() {
         launchLoadingScope {
             val usernames = _gistListUIModel.value.filterIsInstance<GistListUIItem.Gist>().map {

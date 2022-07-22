@@ -3,7 +3,9 @@ package com.example.mmoveinterviewquiz.view.gistdetail
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.activity.addCallback
 import androidx.fragment.app.viewModels
+import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.example.mmoveinterviewquiz.databinding.FragmentGistDetailBinding
 import com.example.mmoveinterviewquiz.util.launchAndRepeatWithViewLifecycle
@@ -13,6 +15,10 @@ import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class GistDetailFragment: BaseFragment<FragmentGistDetailBinding>() {
+
+    companion object {
+        const val ARG_KEY_IS_FAV_CHANGED = "ARG_KEY_IS_FAV_CHANGED"
+    }
 
     private val viewModel: GistDetailViewModel by viewModels()
     private val args: GistDetailFragmentArgs by navArgs()
@@ -27,11 +33,16 @@ class GistDetailFragment: BaseFragment<FragmentGistDetailBinding>() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        requireActivity().onBackPressedDispatcher.addCallback(this) {
+            findNavController().apply {
+                previousBackStackEntry?.savedStateHandle?.set(ARG_KEY_IS_FAV_CHANGED, viewModel.isFavChanged)
+                popBackStack()
+            }
+        }
         viewModel.initViewModel(args.selectedGist)
     }
 
     override fun setupView() {
-
         with(binding) {
             gistDetailFavoriteButton.setOnClickListener {
                 viewModel.onClickFavorite()
@@ -49,6 +60,8 @@ class GistDetailFragment: BaseFragment<FragmentGistDetailBinding>() {
             }
 
         }
+
     }
+
 
 }
