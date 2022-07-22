@@ -1,6 +1,5 @@
 package com.example.mmoveinterviewquiz.repository.github
 
-import android.util.Log
 import com.example.mmoveinterviewquiz.data.local.dao.FavoriteDao
 import com.example.mmoveinterviewquiz.data.local.entity.Favorite
 import com.example.mmoveinterviewquiz.data.network.model.GetGistsResponseItem
@@ -10,6 +9,7 @@ import com.example.mmoveinterviewquiz.repository.model.Gist
 import com.example.mmoveinterviewquiz.repository.model.RepositoryResult
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.delay
 
 class GithubRepositoryImpl(private val apiService: GithubApiService, private val favoriteDao: FavoriteDao): BaseRepository() {
 

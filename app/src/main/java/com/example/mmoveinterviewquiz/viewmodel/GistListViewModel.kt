@@ -36,9 +36,9 @@ class GistListViewModel @Inject constructor(private val repository: GithubReposi
     val snackbarMessage: Flow<TextWrap> = _snackbarMessage
 
 
-    fun onClickFavoriteGist(position: Int) {
+    fun onClickFavoriteGist(gistId: String) {
         launchLoadingScope {
-            val clickedItem = (_gistListUIModel.value.getOrNull(position) as? GistListUIItem.Gist) ?: return@launchLoadingScope
+            val clickedItem = (_gistListUIModel.value.firstOrNull{it.id == gistId} as? GistListUIItem.Gist) ?: return@launchLoadingScope
             val res = when (clickedItem.isFavorite) {
                 true -> repository.deleteFavoriteAsync(viewModelScope, clickedItem.id)
                 false -> repository.addFavoriteAsync(viewModelScope, clickedItem.id)
@@ -47,7 +47,7 @@ class GistListViewModel @Inject constructor(private val repository: GithubReposi
             when (res) {
                 is RepositoryResult.Success -> {
                     val newList = _gistListUIModel.value.mapIndexed { idx, item ->
-                        when (position == idx && item is GistListUIItem.Gist) {
+                        when (item.id == gistId && item is GistListUIItem.Gist) {
                             true -> item.copy(
                                 isFavorite = !item.isFavorite
                             )
@@ -64,7 +64,7 @@ class GistListViewModel @Inject constructor(private val repository: GithubReposi
 
     }
 
-    fun onClickItem(position: Int) {
+    fun onClickItem(gistId: String) {
 
     }
 

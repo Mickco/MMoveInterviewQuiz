@@ -1,8 +1,8 @@
 package com.example.mmoveinterviewquiz.view.gistlist
 
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import androidx.core.view.isGone
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.example.mmoveinterviewquiz.R
@@ -21,7 +21,6 @@ class GistListRecyclerViewAdapter(private val listener: GistItemListener): Recyc
         set(value) {
             val result = DiffUtil.calculateDiff(GistListDiffUtil(oldListInfo = field, newListInfo = value))
             field = value
-            // TODO: Use difftool later
             result.dispatchUpdatesTo(this)
         }
 
@@ -34,20 +33,19 @@ class GistListRecyclerViewAdapter(private val listener: GistItemListener): Recyc
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
+        Log.d("Mickco", "position ${position}")
         val item = uiList.getOrNull(position)
         val context = holder.itemView.context
-        val isNextItemUserInfo = uiList.getOrNull(position + 1) is GistListUIItem.UserInfo
         when {
             holder is GistItemViewHolder && item is GistListUIItem.Gist-> {
                 holder.itemView.setOnClickListener {
-                    listener.onClickItem(position)
+                    listener.onClickItem(item.id)
                 }
                 holder.binding.apply {
                     gistItemUsernameText.text = item.username
                     gistItemIdText.text = item.idText.getString(context)
                     gistItemUrlText.text = item.url.getString(context)
                     gistItemFileNameText.text = item.csvFileName.getString(context)
-                    gistItemDivider.isGone = isNextItemUserInfo
 
 
                     gistItemFavoriteImage.setImageResource(
@@ -57,7 +55,7 @@ class GistListRecyclerViewAdapter(private val listener: GistItemListener): Recyc
                         }
                     )
                     gistItemFavoriteImage.setOnClickListener {
-                        listener.onClickFavorite(position)
+                        listener.onClickFavorite(item.id)
                     }
                 }
             }
@@ -115,7 +113,7 @@ class GistListRecyclerViewAdapter(private val listener: GistItemListener): Recyc
     }
 
     interface GistItemListener {
-        fun onClickFavorite(position: Int)
-        fun onClickItem(position: Int)
+        fun onClickFavorite(gistId: String)
+        fun onClickItem(gistId: String)
     }
 }

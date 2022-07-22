@@ -68,11 +68,12 @@ class GistListFragment : BaseFragment<FragmentGistListBinding>(), GistListRecycl
 
     }
 
-    override fun onClickFavorite(position: Int) {
-        viewModel.onClickFavoriteGist(position)
+    override fun onClickItem(gistId: String) {
+        viewModel.onClickItem(gistId)
+
     }
 
-    override fun onClickItem(position: Int) {
-        viewModel.onClickItem(position)
+    override fun onClickFavorite(gistId: String) {
+        viewModel.onClickFavoriteGist(gistId)
     }
 }
