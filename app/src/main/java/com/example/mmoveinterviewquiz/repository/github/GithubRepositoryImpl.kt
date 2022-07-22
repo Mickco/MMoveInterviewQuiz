@@ -1,8 +1,8 @@
 package com.example.mmoveinterviewquiz.repository.github
 
 import android.util.Log
-import com.example.mmoveinterviewquiz.network.model.GetGistsResponseItem
-import com.example.mmoveinterviewquiz.network.service.GithubApiService
+import com.example.mmoveinterviewquiz.data.network.model.GetGistsResponseItem
+import com.example.mmoveinterviewquiz.data.network.service.GithubApiService
 import com.example.mmoveinterviewquiz.repository.BaseRepository
 import com.example.mmoveinterviewquiz.repository.model.Gist
 import com.example.mmoveinterviewquiz.repository.model.RepositoryResult

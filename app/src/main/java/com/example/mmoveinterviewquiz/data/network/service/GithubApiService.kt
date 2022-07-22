@@ -1,6 +1,6 @@
-package com.example.mmoveinterviewquiz.network.service
+package com.example.mmoveinterviewquiz.data.network.service
 
-import com.example.mmoveinterviewquiz.network.model.GetGistsResponseItem
+import com.example.mmoveinterviewquiz.data.network.model.GetGistsResponseItem
 import retrofit2.http.GET
 import retrofit2.http.Path
 

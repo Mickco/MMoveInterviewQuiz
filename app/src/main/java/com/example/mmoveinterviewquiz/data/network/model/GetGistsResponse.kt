@@ -1,4 +1,4 @@
-package com.example.mmoveinterviewquiz.network.model
+package com.example.mmoveinterviewquiz.data.network.model
 
 
 data class GetGistsResponseItem(

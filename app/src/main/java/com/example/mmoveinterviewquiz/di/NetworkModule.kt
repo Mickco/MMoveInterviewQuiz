@@ -2,8 +2,8 @@ package com.example.mmoveinterviewquiz.di
 
 import android.content.Context
 import com.example.mmoveinterviewquiz.BuildConstant
-import com.example.mmoveinterviewquiz.network.interceptor.NetworkConnectionInterceptor
-import com.example.mmoveinterviewquiz.network.service.GithubApiService
+import com.example.mmoveinterviewquiz.data.network.interceptor.NetworkConnectionInterceptor
+import com.example.mmoveinterviewquiz.data.network.service.GithubApiService
 import com.example.mmoveinterviewquiz.repository.github.GithubRepositoryImpl
 import dagger.Module
 import dagger.Provides

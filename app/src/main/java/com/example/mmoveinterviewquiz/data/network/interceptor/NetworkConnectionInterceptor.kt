@@ -1,4 +1,4 @@
-package com.example.mmoveinterviewquiz.network.interceptor
+package com.example.mmoveinterviewquiz.data.network.interceptor
 
 import android.content.Context
 import android.net.ConnectivityManager
