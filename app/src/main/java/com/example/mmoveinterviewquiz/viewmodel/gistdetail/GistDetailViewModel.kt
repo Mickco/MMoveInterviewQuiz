@@ -1,6 +1,6 @@
 package com.example.mmoveinterviewquiz.viewmodel.gistdetail
 
-import com.example.mmoveinterviewquiz.repository.github.GithubRepositoryImpl
+import com.example.mmoveinterviewquiz.repository.github.GithubRepository
 import com.example.mmoveinterviewquiz.repository.model.Gist
 import com.example.mmoveinterviewquiz.repository.model.RepositoryResult
 import com.example.mmoveinterviewquiz.view.common.StringWrap
@@ -12,7 +12,7 @@ import kotlinx.coroutines.flow.StateFlow
 import javax.inject.Inject
 
 @HiltViewModel
-class GistDetailViewModel @Inject constructor(private val repository: GithubRepositoryImpl) : BaseViewModel() {
+class GistDetailViewModel @Inject constructor(private val repository: GithubRepository) : BaseViewModel() {
 
     private lateinit var _selectedGist: Gist
     private val _isFavorite = MutableStateFlow(false)

@@ -1,7 +1,7 @@
 package com.example.mmoveinterviewquiz.viewmodel
 
 import androidx.lifecycle.viewModelScope
-import com.example.mmoveinterviewquiz.repository.github.GithubRepositoryImpl
+import com.example.mmoveinterviewquiz.repository.github.GithubRepository
 import com.example.mmoveinterviewquiz.repository.model.ErrorCode
 import com.example.mmoveinterviewquiz.repository.model.Gist
 import com.example.mmoveinterviewquiz.repository.model.RepositoryResult
@@ -21,7 +21,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class GistListViewModel @Inject constructor(private val repository: GithubRepositoryImpl): BaseViewModel() {
+class GistListViewModel @Inject constructor(private val repository: GithubRepository): BaseViewModel() {
 
     companion object {
         private const val USER_GISTS_THRESHOLD = 5
