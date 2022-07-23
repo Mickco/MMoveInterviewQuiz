@@ -10,7 +10,6 @@ import com.example.mmoveinterviewquiz.repository.model.Gist
 import com.example.mmoveinterviewquiz.repository.model.RepositoryResult
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.map
@@ -37,18 +36,12 @@ class GithubRepositoryImpl(private val apiService: GithubApiService, private val
 
     override suspend fun fetchUserGistsAsync(coroutineScope: CoroutineScope, username: String): Deferred<RepositoryResult<List<Gist>>> {
         return executeAsyncCall(coroutineScope) {
-//            val apiResult = apiService.getUserGists(username)
-//
-//            apiResult.map {
-//                it.toGist()
-//            }
-            val list = mutableListOf<Gist>()
-            val random = (6..10).random()
-            delay(1000)
-            repeat(random) {
-                list.add(Gist(id = "123", url = "", username=username, csvFilename = null))
+            val apiResult = apiService.getUserGists(username)
+
+            apiResult.map {
+                it.toGist()
             }
-            list
+
         }
 
     }
