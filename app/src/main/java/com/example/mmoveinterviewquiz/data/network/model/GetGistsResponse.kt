@@ -58,6 +58,4 @@ enum class FileType {
     CSV,
     @SerializedName("text/plain")
     Plain,
-
-    Unknown
 }
