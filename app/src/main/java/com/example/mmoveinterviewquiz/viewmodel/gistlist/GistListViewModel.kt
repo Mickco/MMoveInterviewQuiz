@@ -1,12 +1,14 @@
 package com.example.mmoveinterviewquiz.viewmodel
 
 import androidx.lifecycle.viewModelScope
+import com.example.mmoveinterviewquiz.R
 import com.example.mmoveinterviewquiz.repository.github.GithubRepository
 import com.example.mmoveinterviewquiz.repository.model.ErrorCode
 import com.example.mmoveinterviewquiz.repository.model.Gist
 import com.example.mmoveinterviewquiz.repository.model.RepositoryResult
 import com.example.mmoveinterviewquiz.util.safeSubList
 import com.example.mmoveinterviewquiz.view.common.FormatWrap
+import com.example.mmoveinterviewquiz.view.common.ResourceWrap
 import com.example.mmoveinterviewquiz.view.common.StringWrap
 import com.example.mmoveinterviewquiz.view.common.TextWrap
 import com.example.mmoveinterviewquiz.viewmodel.common.BaseViewModel
@@ -169,7 +171,7 @@ class GistListViewModel @Inject constructor(private val repository: GithubReposi
                                     id = it.id,
                                     username = it.username,
                                     info = FormatWrap(
-                                        StringWrap("This user is %s.\nHe/She has gists count of %s."),
+                                        ResourceWrap(R.string.user_info_message),
                                         StringWrap(it.username),
                                         StringWrap(gistsCount.toString()))
                                 )
@@ -194,13 +196,13 @@ class GistListViewModel @Inject constructor(private val repository: GithubReposi
             _snackbarMessage.emit(
                 when (error.errorCode) {
                     ErrorCode.HTTPError -> {
-                        FormatWrap(StringWrap("API return error (%s)"), StringWrap(error.errorMessage?.code.toString()))
+                        FormatWrap(ResourceWrap(R.string.http_error_message), StringWrap(error.errorMessage?.code.toString()))
                     }
                     ErrorCode.ConnectionError -> {
-                        StringWrap("Please connect to the network")
+                        ResourceWrap(R.string.connection_error_message)
                     }
                     else -> {
-                        StringWrap("Unknown Error")
+                        ResourceWrap(R.string.unknown_error_message)
                     }
                 }
             )

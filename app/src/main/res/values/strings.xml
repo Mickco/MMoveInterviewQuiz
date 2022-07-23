@@ -1,3 +1,16 @@
 <resources>
     <string name="app_name">MMoveInterviewQuiz</string>
+
+
+    <string name="gist_list_title">GistListFragment</string>
+    <string name="gist_detail_title">GistDetailFragment</string>
+    <string name="gist_list_row_id_title">ID</string>
+    <string name="gist_list_row_url_title">URl</string>
+    <string name="gist_list_row_csv_filename_title">CSV FileName</string>
+    <string name="user_info_message">This user is %s.\nHe/She has gists count of %s.</string>
+    <string name="http_error_message">API return error (%s)</string>
+    <string name="connection_error_message">Please connect to the network</string>
+    <string name="unknown_error_message">Unknown Error</string>
+
+
 </resources>
