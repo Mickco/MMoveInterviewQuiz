@@ -17,10 +17,12 @@ import kotlinx.coroutines.flow.map
 
 class GithubRepositoryImpl(private val apiService: GithubApiService, private val favoriteDao: FavoriteDao): BaseRepository(), GithubRepository {
 
-    override val favoriteListFlow: Flow<RepositoryResult<List<String>>> = favoriteDao.getAll().map {
-        RepositoryResult.Success(it.map { it.id }) as RepositoryResult<List<String>>
-    }.catch { e ->
-        emit(handleException(e) )
+    override val favoriteListFlow: Flow<RepositoryResult<List<String>>> by lazy {
+        favoriteDao.getAll().map {
+            RepositoryResult.Success(it.map { it.id }) as RepositoryResult<List<String>>
+        }.catch { e ->
+            emit(handleException(e) )
+        }
     }
 
     override suspend fun fetchGistsAsync(coroutineScope: CoroutineScope): Deferred<RepositoryResult<List<Gist>>> {
@@ -35,12 +37,18 @@ class GithubRepositoryImpl(private val apiService: GithubApiService, private val
 
     override suspend fun fetchUserGistsAsync(coroutineScope: CoroutineScope, username: String): Deferred<RepositoryResult<List<Gist>>> {
         return executeAsyncCall(coroutineScope) {
-            val apiResult = apiService.getUserGists(username)
-
-            apiResult.map {
-                it.toGist()
+//            val apiResult = apiService.getUserGists(username)
+//
+//            apiResult.map {
+//                it.toGist()
+//            }
+            val list = mutableListOf<Gist>()
+            val random = (6..10).random()
+            delay(1000)
+            repeat(random) {
+                list.add(Gist(id = "123", url = "", username=username, csvFilename = null))
             }
-
+            list
         }
 
     }

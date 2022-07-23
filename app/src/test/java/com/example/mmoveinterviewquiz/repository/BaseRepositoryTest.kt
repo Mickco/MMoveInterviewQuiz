@@ -1,11 +1,14 @@
 package com.example.mmoveinterviewquiz.repository
 
+import app.cash.turbine.test
 import com.example.mmoveinterviewquiz.common.BaseUnitTest
 import com.example.mmoveinterviewquiz.repository.model.ErrorCode
 import com.example.mmoveinterviewquiz.repository.model.ErrorMessage
 import com.example.mmoveinterviewquiz.repository.model.RepositoryResult
 import junit.framework.Assert.assertEquals
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.test.runTest
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.ResponseBody
@@ -71,5 +74,14 @@ class BaseRepositoryTest : BaseUnitTest() {
 
     }
 
+    @Test
+    fun test123() = runTest {
+        flow<String> { throw RuntimeException("broken!") }
+            .catch { e ->
+                emit("123")
+            }.test {
+            assertEquals("broken!", awaitItem())
+        }
+    }
 
 }

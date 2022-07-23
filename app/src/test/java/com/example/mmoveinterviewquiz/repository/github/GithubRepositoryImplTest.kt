@@ -9,6 +9,7 @@ import com.example.mmoveinterviewquiz.data.network.model.FileType
 import com.example.mmoveinterviewquiz.data.network.model.GetGistsResponseItem
 import com.example.mmoveinterviewquiz.data.network.model.Owner
 import com.example.mmoveinterviewquiz.data.network.service.GithubApiService
+import com.example.mmoveinterviewquiz.repository.model.ErrorCode
 import com.example.mmoveinterviewquiz.repository.model.Gist
 import com.example.mmoveinterviewquiz.repository.model.RepositoryResult
 import io.mockk.coEvery
@@ -16,9 +17,11 @@ import io.mockk.coVerify
 import io.mockk.impl.annotations.RelaxedMockK
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Test
+import java.net.UnknownHostException
 
 @ExperimentalCoroutinesApi
 class GithubRepositoryImplTest : BaseUnitTest() {
@@ -86,7 +89,6 @@ class GithubRepositoryImplTest : BaseUnitTest() {
     @RelaxedMockK
     lateinit var favoriteDao: FavoriteDao
 
-    val fakeFavListFlow = MutableSharedFlow<List<Favorite>>(replay = 0)
 
 
     lateinit var repository: GithubRepository
@@ -94,7 +96,6 @@ class GithubRepositoryImplTest : BaseUnitTest() {
     override fun setup() {
         super.setup()
 
-        coEvery { favoriteDao.getAll() } returns fakeFavListFlow
         repository = GithubRepositoryImpl(service, favoriteDao)
     }
 
@@ -164,15 +165,33 @@ class GithubRepositoryImplTest : BaseUnitTest() {
 
     @Test
     fun favoriteListFlow() = runTest {
+        val fakeFavListFlow = MutableSharedFlow<List<Favorite>>(replay = 0)
+
+        coEvery { favoriteDao.getAll() } returns fakeFavListFlow
+
         val gistID = "gistID123"
 
 
         repository.favoriteListFlow.test {
             fakeFavListFlow.emit(listOf(Favorite(gistID)))
-            assertEquals(listOf(gistID), awaitItem())
+            assertEquals(RepositoryResult.Success(listOf(gistID)), awaitItem())
+
             cancelAndIgnoreRemainingEvents()
         }
 
+    }
+
+    @Test
+    fun favoriteListFlow_fail() = runTest {
+        val fakeFavListFlow = flow<List<Favorite>> {
+            throw  UnknownHostException()
+        }
+        coEvery { favoriteDao.getAll() } returns fakeFavListFlow
+
+        repository.favoriteListFlow.test {
+            assertEquals(RepositoryResult.Fail(errorCode = ErrorCode.ConnectionError), awaitItem())
+            cancelAndIgnoreRemainingEvents()
+        }
     }
 
 }
