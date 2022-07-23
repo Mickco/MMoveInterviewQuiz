@@ -4,10 +4,7 @@ import androidx.annotation.VisibleForTesting
 import com.example.mmoveinterviewquiz.repository.model.ErrorCode
 import com.example.mmoveinterviewquiz.repository.model.ErrorMessage
 import com.example.mmoveinterviewquiz.repository.model.RepositoryResult
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.CoroutineStart
-import kotlinx.coroutines.Deferred
-import kotlinx.coroutines.async
+import kotlinx.coroutines.*
 import retrofit2.HttpException
 import java.io.IOException
 import java.net.UnknownHostException
@@ -16,7 +13,7 @@ abstract class BaseRepository {
 
     @VisibleForTesting(otherwise = VisibleForTesting.PROTECTED)
     suspend fun <T> executeAsyncCall(coroutineScope: CoroutineScope, apiCall: suspend () -> T ): Deferred<RepositoryResult<T>> {
-        return coroutineScope.async(start = CoroutineStart.LAZY) {
+        return coroutineScope.async(Dispatchers.IO, start = CoroutineStart.LAZY) {
             try {
                 RepositoryResult.Success(apiCall())
             }catch (e: HttpException) {

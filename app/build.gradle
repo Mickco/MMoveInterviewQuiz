@@ -72,6 +72,7 @@ dependencies {
         junit_ext_version = "1.1.3"
         nav_version = "2.5.0"
         room_version = "2.4.2"
+        turbine_version = "0.8.0"
     }
 
     implementation "androidx.legacy:legacy-support-v4:$legacy_support_version"
@@ -102,6 +103,9 @@ dependencies {
     testImplementation "androidx.arch.core:core-testing:$core_testing_version"
     testImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutines_version"
     testImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-test:$coroutines_version"
+
+    //turbine
+    testImplementation "app.cash.turbine:turbine:$turbine_version"
 
 
     //hilt
