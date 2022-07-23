@@ -8,7 +8,7 @@ import kotlinx.coroutines.flow.Flow
 
 
 interface GithubRepository {
-    val favoriteListFlow: Flow<List<String>>
+    val favoriteListFlow: Flow<RepositoryResult<List<String>>>
 
     suspend fun fetchGistsAsync(coroutineScope: CoroutineScope): Deferred<RepositoryResult<List<Gist>>>
     suspend fun fetchUserGistsAsync(coroutineScope: CoroutineScope, username: String): Deferred<RepositoryResult<List<Gist>>>

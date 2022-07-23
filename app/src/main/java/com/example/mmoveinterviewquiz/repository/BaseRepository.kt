@@ -16,7 +16,15 @@ abstract class BaseRepository {
         return coroutineScope.async(Dispatchers.IO, start = CoroutineStart.LAZY) {
             try {
                 RepositoryResult.Success(apiCall())
-            }catch (e: HttpException) {
+            }catch (e: Throwable) {
+                handleException(e)
+            }
+        }
+    }
+
+    protected fun handleException(e: Throwable): RepositoryResult.Fail {
+        return when(e) {
+            is HttpException -> {
                 val res = e.response()
                 RepositoryResult.Fail(
                     ErrorCode.HTTPError,
@@ -25,13 +33,10 @@ abstract class BaseRepository {
                         message = res?.message().orEmpty()
                     )
                 )
-            }catch (e: UnknownHostException) {
-                RepositoryResult.Fail(ErrorCode.ConnectionError)
-            }catch (e: IOException) {
-                RepositoryResult.Fail(ErrorCode.IOError)
-            }catch (e: Throwable) {
-                RepositoryResult.Fail(ErrorCode.UnknownError)
             }
+            is UnknownHostException -> RepositoryResult.Fail(ErrorCode.ConnectionError)
+            is IOException -> RepositoryResult.Fail(ErrorCode.IOError)
+            else -> RepositoryResult.Fail(ErrorCode.UnknownError)
         }
     }
 

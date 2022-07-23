@@ -34,7 +34,10 @@ class GistListViewModel @Inject constructor(private val repository: GithubReposi
     private val _showLoadingSpinner = MutableStateFlow(false)
     private val _snackbarMessage = MutableSharedFlow<TextWrap>(replay = 0)
     private val _navigateToDetail = MutableSharedFlow<Gist>(replay = 0)
-    private val _favoriteList = repository.favoriteListFlow.onEach { favList ->
+    private val _favoriteList = repository.favoriteListFlow
+        .filterIsInstance<RepositoryResult.Success<List<String>>>()
+        .map { it.data }
+        .onEach { favList ->
         _gistListUIModel.value = _gistListUIModel.value.map {
             when(it) {
                 is GistListUIItem.Gist -> it.copy(isFavorite = it.id in favList)
@@ -57,13 +60,9 @@ class GistListViewModel @Inject constructor(private val repository: GithubReposi
                 false -> repository.addFavoriteAsync(this, gistId)
             }.await()
 
-            when (res) {
-                is RepositoryResult.Fail -> {
-                    onResponseFail(res)
-                }
-            }
+            if (res is RepositoryResult.Fail)
+                onResponseFail(res)
         }
-
     }
 
     fun onClickItem(gistId: String) {

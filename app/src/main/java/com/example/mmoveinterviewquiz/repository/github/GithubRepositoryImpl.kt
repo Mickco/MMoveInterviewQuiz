@@ -12,12 +12,15 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.map
 
 class GithubRepositoryImpl(private val apiService: GithubApiService, private val favoriteDao: FavoriteDao): BaseRepository(), GithubRepository {
 
-    override val favoriteListFlow: Flow<List<String>> = favoriteDao.getAll().map {
-        it.map { it.id }
+    override val favoriteListFlow: Flow<RepositoryResult<List<String>>> = favoriteDao.getAll().map {
+        RepositoryResult.Success(it.map { it.id }) as RepositoryResult<List<String>>
+    }.catch { e ->
+        emit(handleException(e) )
     }
 
     override suspend fun fetchGistsAsync(coroutineScope: CoroutineScope): Deferred<RepositoryResult<List<Gist>>> {

@@ -3,6 +3,7 @@ package com.example.mmoveinterviewquiz.viewmodel.gistdetail
 import androidx.lifecycle.viewModelScope
 import com.example.mmoveinterviewquiz.repository.github.GithubRepository
 import com.example.mmoveinterviewquiz.repository.model.Gist
+import com.example.mmoveinterviewquiz.repository.model.RepositoryResult
 import com.example.mmoveinterviewquiz.view.common.StringWrap
 import com.example.mmoveinterviewquiz.view.common.TextWrap
 import com.example.mmoveinterviewquiz.viewmodel.common.BaseViewModel
@@ -16,8 +17,11 @@ class GistDetailViewModel @Inject constructor(private val repository: GithubRepo
     private lateinit var _selectedGist: Gist
     private val _isFavorite = MutableStateFlow(false)
     private val _displayText = MutableStateFlow<TextWrap>(StringWrap())
-    private val _favoriteList = repository.favoriteListFlow.onEach { favList ->
-        _isFavorite.value = _selectedGist.id in favList
+    private val _favoriteList: StateFlow<List<String>> = repository.favoriteListFlow
+        .filterIsInstance<RepositoryResult.Success<List<String>>>()
+        .map { it.data }
+        .onEach { favList ->
+            _isFavorite.value = _selectedGist.id in favList
     }.stateIn(viewModelScope, started = SharingStarted.Eagerly, listOf())
 
     val isFavorite: StateFlow<Boolean> = _isFavorite
@@ -27,7 +31,6 @@ class GistDetailViewModel @Inject constructor(private val repository: GithubRepo
         _selectedGist = gist
         _displayText.value = StringWrap(gist.toString())
         _isFavorite.value = gist.id in _favoriteList.value
-
     }
 
     fun onClickFavorite() {
