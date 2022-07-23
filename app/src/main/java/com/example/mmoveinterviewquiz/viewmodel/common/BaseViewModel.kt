@@ -11,12 +11,12 @@ abstract class BaseViewModel: ViewModel() {
     protected var loadingCount = AtomicInteger(0)
 
     protected fun AtomicInteger.start() {
-        loadingCount.incrementAndGet()
+        this.incrementAndGet()
         onLoadingCountChanged()
     }
 
     protected fun AtomicInteger.end() {
-        loadingCount.decrementAndGet()
+        this.decrementAndGet()
         onLoadingCountChanged()
     }
 
