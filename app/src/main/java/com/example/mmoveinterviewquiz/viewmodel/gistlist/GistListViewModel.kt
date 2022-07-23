@@ -24,9 +24,10 @@ class GistListViewModel @Inject constructor(private val repository: GithubReposi
 
     companion object {
         private const val USER_GISTS_THRESHOLD = 5
-        private const val BATCH_LOADING_SIZE = 4
+        private const val BATCH_LOADING_OFFSET = 4
     }
 
+    //internal
     private var _gistList = listOf<Gist>()
     private var _lastfetchedUserInfoIdx = 0
     private var _fetchedUsernameHistory = mutableListOf<String>()
@@ -34,7 +35,7 @@ class GistListViewModel @Inject constructor(private val repository: GithubReposi
     private val _showLoadingSpinner = MutableStateFlow(false)
     private val _snackbarMessage = MutableSharedFlow<TextWrap>(replay = 0)
     private val _navigateToDetail = MutableSharedFlow<Gist>(replay = 0)
-    private val _favoriteList = repository.favoriteListFlow
+    private val _favoriteList: StateFlow<List<String>> = repository.favoriteListFlow
         .filterIsInstance<RepositoryResult.Success<List<String>>>()
         .map { it.data }
         .onEach { favList ->
@@ -46,9 +47,12 @@ class GistListViewModel @Inject constructor(private val repository: GithubReposi
         }
     }.stateIn(viewModelScope, started = SharingStarted.Eagerly, listOf())
 
+    //output
     val gistListUIModel:StateFlow<List<GistListUIItem>> = _gistListUIModel
     val showLoadingSpinner: StateFlow<Boolean> = _showLoadingSpinner
     val snackbarMessage: Flow<TextWrap> = _snackbarMessage
+
+    //navigation
     val navigateToDetail: Flow<Gist> = _navigateToDetail
 
 
@@ -74,11 +78,11 @@ class GistListViewModel @Inject constructor(private val repository: GithubReposi
 
     fun initViewModel() {
         launchLoadingScope {
-            val fetchGistsReq = repository.fetchGistsAsync(this)
-            val fetchGistRes = fetchGistsReq.await()
+            val fetchGistRes = repository.fetchGistsAsync(this).await()
 
-            when {
-                fetchGistRes is RepositoryResult.Success  -> {
+            when (fetchGistRes){
+                is RepositoryResult.Success  -> {
+                    // construct the list of gists to display
                     _gistList = fetchGistRes.data
                     val gistsUIList = fetchGistRes.data.map {
                         GistListUIItem.Gist(
@@ -92,25 +96,30 @@ class GistListViewModel @Inject constructor(private val repository: GithubReposi
                     }
                     _gistListUIModel.value = gistsUIList
                 }
-                fetchGistRes is RepositoryResult.Fail -> {
+                is RepositoryResult.Fail -> {
                     onResponseFail(fetchGistRes)
                 }
             }
         }
     }
 
+    /** Since github API has rate limit
+     * Therefore impletemented this function, so that user info are loaded on demand **/
     fun onScrollLoadMoreUserInfo(lastCompletelyVisibleItemPosition: Int) {
+        //check if any IO loading
         if (loadingCount.get() != 0) return
+
         val lastVisibleGistIdx = _gistListUIModel.value.subList(0, lastCompletelyVisibleItemPosition).filterIsInstance<GistListUIItem.Gist>().lastIndex
         if (lastVisibleGistIdx < _lastfetchedUserInfoIdx) return
         launchLoadingScope {
             val usernames = _gistListUIModel.value
                 .filterIsInstance<GistListUIItem.Gist>()
-                .safeSubList(_lastfetchedUserInfoIdx, _lastfetchedUserInfoIdx+BATCH_LOADING_SIZE)
+                .safeSubList(_lastfetchedUserInfoIdx, _lastfetchedUserInfoIdx+BATCH_LOADING_OFFSET)
                 .map {
                 it.username
             }
 
+            // batch loading user info of next few usernames
             val userGistsResultList = usernames
                 .distinct()
                 .filter { it !in _fetchedUsernameHistory }
@@ -118,6 +127,9 @@ class GistListViewModel @Inject constructor(private val repository: GithubReposi
                 repository.fetchUserGistsAsync(this, it)
             }.awaitAll()
 
+            /** check if all api success
+             * if yes add user info where needed
+             * if not display snackbar error message **/
             when(userGistsResultList.all { it is RepositoryResult.Success<List<Gist>> }) {
                 true -> {
                     userGistsResultList as List<RepositoryResult.Success<List<Gist>>>
@@ -144,7 +156,7 @@ class GistListViewModel @Inject constructor(private val repository: GithubReposi
                         }
                     }
                     _fetchedUsernameHistory.addAll(userGistsCountMap.keys)
-                    _lastfetchedUserInfoIdx += BATCH_LOADING_SIZE
+                    _lastfetchedUserInfoIdx += BATCH_LOADING_OFFSET
                     _gistListUIModel.value = newGistUIList
                 }
                 false -> {
@@ -156,6 +168,7 @@ class GistListViewModel @Inject constructor(private val repository: GithubReposi
     }
 
 
+    // Handle repository fail, and display message accordingly
     private fun onResponseFail(error: RepositoryResult.Fail) {
         viewModelScope.launch(Dispatchers.Main) {
             _snackbarMessage.emit(

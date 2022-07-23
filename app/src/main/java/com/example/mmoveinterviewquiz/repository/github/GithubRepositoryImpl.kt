@@ -14,6 +14,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.map
 
+/** This class show case both the kotlin flow reactive way and coroutine/async way **/
 class GithubRepositoryImpl(private val apiService: GithubApiService, private val favoriteDao: FavoriteDao): BaseRepository(), GithubRepository {
 
     override val favoriteListFlow: Flow<RepositoryResult<List<String>>> by lazy {
