@@ -1,14 +1,13 @@
 package com.example.mmoveinterviewquiz.viewmodel.gistdetail
 
+import androidx.lifecycle.viewModelScope
 import com.example.mmoveinterviewquiz.repository.github.GithubRepository
 import com.example.mmoveinterviewquiz.repository.model.Gist
-import com.example.mmoveinterviewquiz.repository.model.RepositoryResult
 import com.example.mmoveinterviewquiz.view.common.StringWrap
 import com.example.mmoveinterviewquiz.view.common.TextWrap
 import com.example.mmoveinterviewquiz.viewmodel.common.BaseViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.*
 import javax.inject.Inject
 
 @HiltViewModel
@@ -17,37 +16,28 @@ class GistDetailViewModel @Inject constructor(private val repository: GithubRepo
     private lateinit var _selectedGist: Gist
     private val _isFavorite = MutableStateFlow(false)
     private val _displayText = MutableStateFlow<TextWrap>(StringWrap())
+    private val _favoriteList = repository.favoriteListFlow.onEach { favList ->
+        _isFavorite.value = _selectedGist.id in favList
+    }.stateIn(viewModelScope, started = SharingStarted.Eagerly, listOf())
 
     val isFavorite: StateFlow<Boolean> = _isFavorite
     val displayText: StateFlow<TextWrap> = _displayText
-    var isFavChanged: Boolean = false
-        private set
 
     fun initViewModel(gist: Gist) {
         _selectedGist = gist
         _displayText.value = StringWrap(gist.toString())
+        _isFavorite.value = gist.id in _favoriteList.value
 
-        launchLoadingScope {
-            val res = repository.fetchFavoritesAsync(this).await()
-
-            if (res is RepositoryResult.Success) {
-                _isFavorite.value = gist.id in res.data
-            }
-        }
     }
 
     fun onClickFavorite() {
         launchLoadingScope {
             val gistId = _selectedGist.id
-            val res = when (_isFavorite.value) {
+            val isFavorite = gistId in _favoriteList.value
+            val res = when (isFavorite) {
                 true -> repository.deleteFavoriteAsync(this, gistId)
                 false -> repository.addFavoriteAsync(this, gistId)
             }.await()
-
-            if (res is RepositoryResult.Success) {
-                isFavChanged = true
-                _isFavorite.value = gistId in res.data
-            }
         }
     }
 }

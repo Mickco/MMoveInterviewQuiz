@@ -10,9 +10,15 @@ import com.example.mmoveinterviewquiz.repository.model.Gist
 import com.example.mmoveinterviewquiz.repository.model.RepositoryResult
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 
 class GithubRepositoryImpl(private val apiService: GithubApiService, private val favoriteDao: FavoriteDao): BaseRepository(), GithubRepository {
 
+    override val favoriteListFlow: Flow<List<String>> = favoriteDao.getAll().map {
+        it.map { it.id }
+    }
 
     override suspend fun fetchGistsAsync(coroutineScope: CoroutineScope): Deferred<RepositoryResult<List<Gist>>> {
         return executeAsyncCall(coroutineScope) {
@@ -37,29 +43,15 @@ class GithubRepositoryImpl(private val apiService: GithubApiService, private val
     }
 
 
-    override suspend fun addFavoriteAsync(coroutineScope: CoroutineScope, gistID: String): Deferred<RepositoryResult<List<String>>> {
+    override suspend fun addFavoriteAsync(coroutineScope: CoroutineScope, gistID: String): Deferred<RepositoryResult<Unit>> {
         return executeAsyncCall(coroutineScope) {
             favoriteDao.insert(favorite = Favorite(gistID))
-            favoriteDao.getAll().map {
-                it.id
-            }
         }
     }
 
-    override suspend fun deleteFavoriteAsync(coroutineScope: CoroutineScope, gistID: String): Deferred<RepositoryResult<List<String>>> {
+    override suspend fun deleteFavoriteAsync(coroutineScope: CoroutineScope, gistID: String): Deferred<RepositoryResult<Unit>>{
         return executeAsyncCall(coroutineScope) {
             favoriteDao.delete(favorite = Favorite(gistID))
-            favoriteDao.getAll().map {
-                it.id
-            }
-        }
-    }
-
-    override suspend fun fetchFavoritesAsync(coroutineScope: CoroutineScope): Deferred<RepositoryResult<List<String>>> {
-        return executeAsyncCall(coroutineScope) {
-            favoriteDao.getAll().map {
-                it.id
-            }
         }
     }
 

@@ -12,7 +12,6 @@ import com.example.mmoveinterviewquiz.databinding.FragmentGistListBinding
 import com.example.mmoveinterviewquiz.repository.model.Gist
 import com.example.mmoveinterviewquiz.util.launchAndRepeatWithViewLifecycle
 import com.example.mmoveinterviewquiz.view.common.BaseFragment
-import com.example.mmoveinterviewquiz.view.gistdetail.GistDetailFragment
 import com.example.mmoveinterviewquiz.viewmodel.GistListViewModel
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
@@ -84,17 +83,7 @@ class GistListFragment : BaseFragment<FragmentGistListBinding>(), GistListRecycl
                     gotoGistDetailFragment(it)
                 }
             }
-            launchAndRepeatWithViewLifecycle {
-                findNavController().currentBackStackEntry
-                    ?.savedStateHandle
-                    ?.getStateFlow(GistDetailFragment.ARG_KEY_IS_FAV_CHANGED, false)
-                    ?.collect {
-                    viewModel.onBackFromGistDetail(it)
-                }
-            }
-
         }
-
     }
 
     override fun onClickItem(gistId: String) {
